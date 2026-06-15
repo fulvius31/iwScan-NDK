@@ -14,7 +14,24 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        // libsu is published only on JitPack. Anonymous requests from shared CI-runner IPs are
+        // rate-limited/blocked (HTTP 403), so attach a JitPack auth token when one is available.
+        // Get a token at https://jitpack.io (sign in with GitHub → Account) and expose it as the
+        // JITPACK_TOKEN env var (CI secret) or the jitpack.token Gradle property. Used as HTTP
+        // basic-auth username with an empty password, per JitPack's docs.
+        maven {
+            url 'https://jitpack.io'
+            def jitpackToken = System.getenv('JITPACK_TOKEN') ?: (settings.ext.has('jitpack.token') ? settings.ext.get('jitpack.token') : providers.gradleProperty('jitpack.token').orNull)
+            if (jitpackToken) {
+                credentials {
+                    username = jitpackToken
+                    password = ''
+                }
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
     }
 }
 

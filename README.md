@@ -107,7 +107,19 @@ dependencies {
 
 ## Releasing
 
-Tag a version and push it — CI publishes it to GitHub Packages:
+CI needs one repository secret before it can build, because this library depends on
+[libsu](https://github.com/topjohnwu/libsu), which is published **only on JitPack**. Anonymous
+requests from shared CI-runner IPs are rate-limited (HTTP 403), so the build authenticates to
+JitPack with a token:
+
+1. Sign in at [jitpack.io](https://jitpack.io) with GitHub → **Account** → copy your **Authentication token**.
+2. In this repo: **Settings → Secrets and variables → Actions → New repository secret**,
+   name it **`JITPACK_TOKEN`**, paste the token.
+
+(For local builds, instead put `jitpack.token=<token>` in `~/.gradle/gradle.properties`, or export
+`JITPACK_TOKEN`.)
+
+Then tag a version and push it — CI publishes it to GitHub Packages:
 
 ```bash
 git tag 1.0.0 && git push origin 1.0.0
