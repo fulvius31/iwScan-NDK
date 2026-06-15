@@ -1,6 +1,8 @@
 jdk:
   - openjdk17
 before_install:
-  - sdkmanager "cmake;3.22.1" "ndk;25.0.8775105"
+  # Accept SDK licenses so the NDK/CMake can be installed/auto-provisioned during the native build.
+  - yes | sdkmanager --licenses > /dev/null 2>&1 || true
+  - sdkmanager "cmake;3.22.1" "ndk;25.0.8775105" > /dev/null 2>&1 || true
 install:
-  - ./gradlew publishToMavenLocal
+  - ./gradlew publishToMavenLocal --no-daemon --stacktrace
