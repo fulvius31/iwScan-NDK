@@ -1,0 +1,6 @@
+jdk:
+  - openjdk17
+before_install:
+  - sdkmanager "cmake;3.22.1" "ndk;25.0.8775105"
+install:
+  - ./gradlew publishToMavenLocal

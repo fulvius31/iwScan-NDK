@@ -1,0 +1,59 @@
+plugins {
+    // AGP 9 has built-in Kotlin support, so the kotlin-android plugin is not applied.
+    id 'com.android.library' version '9.0.0'
+    id 'maven-publish'
+}
+
+android {
+    namespace 'sangiorgi.wps.scan'
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk 24
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
+    packaging {
+        jniLibs {
+            // libiwscan.so is an executable run from nativeLibDir; keep it on disk, uncompressed.
+            useLegacyPackaging = true
+        }
+    }
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+}
+
+dependencies {
+    // Root shell used to run the native scanner.
+    implementation 'com.github.topjohnwu.libsu:core:6.0.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+
+    testImplementation 'junit:junit:4.13.2'
+}
+
+// JitPack / Maven coordinates: com.github.fulvius31:iwScan-NDK:<tag>
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.fulvius31'
+                artifactId = 'iwScan-NDK'
+                version = '1.0.0'
+            }
+        }
+    }
+}
