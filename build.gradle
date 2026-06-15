@@ -44,6 +44,20 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
+// Derive the published version from the git tag so it always matches the JitPack coordinate
+// (JitPack checks out the tag before building). Falls back to "dev" for untagged local builds.
+def libraryVersion = {
+    try {
+        def out = providers.exec {
+            commandLine 'git', 'describe', '--tags', '--abbrev=0'
+            ignoreExitValue = true
+        }.standardOutput.asText.get().trim()
+        out ? out : 'dev'
+    } catch (ignored) {
+        'dev'
+    }
+}()
+
 // JitPack / Maven coordinates: com.github.fulvius31:iwScan-NDK:<tag>
 afterEvaluate {
     publishing {
@@ -52,7 +66,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.fulvius31'
                 artifactId = 'iwScan-NDK'
-                version = '1.0.0'
+                version = libraryVersion
             }
         }
     }
