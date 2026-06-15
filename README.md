@@ -47,7 +47,7 @@ directory.
 
 ## Installation
 
-The library is published two ways. Either coordinate is `com.github.fulvius31:iwScan-NDK:1.0.0`.
+The library is published two ways. Either coordinate is `com.github.fulvius31:iwScan-NDK:1.0.1`.
 
 > Whichever you use, the host app must keep
 > `android { packaging { jniLibs { useLegacyPackaging = true } } }` so the bundled `libiwscan.so`
@@ -101,7 +101,7 @@ dependencyResolutionManagement {
 
 ```groovy
 dependencies {
-    implementation 'com.github.fulvius31:iwScan-NDK:1.0.0'
+    implementation 'com.github.fulvius31:iwScan-NDK:1.0.1'
 }
 ```
 
@@ -121,7 +121,7 @@ To bump libsu, drop the new `core-X.Y.Z.aar` + a matching POM under
 Tag a version and push it — CI publishes it to GitHub Packages:
 
 ```bash
-git tag 1.0.0 && git push origin 1.0.0
+git tag 1.0.1 && git push origin 1.0.1
 ```
 
 ## Usage
