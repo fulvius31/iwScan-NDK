@@ -47,45 +47,7 @@ directory.
 
 ## Installation
 
-The library is published two ways. Either coordinate is `com.github.fulvius31:iwScan-NDK:1.0.1`.
-
-> Whichever you use, the host app must keep
-> `android { packaging { jniLibs { useLegacyPackaging = true } } }` so the bundled `libiwscan.so`
-> is extracted to `nativeLibDir` (the only place it can be executed on Android 10+).
-
-### Option A — GitHub Packages (published by CI, recommended)
-
-CI (`.github/workflows/publish.yml`) builds and publishes to GitHub Packages on every `X.Y.Z` tag.
-GitHub Packages requires authentication even for reads, so add a token.
-
-`settings.gradle`:
-
-```groovy
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url = uri("https://maven.pkg.github.com/fulvius31/iwScan-NDK")
-            credentials {
-                username = providers.gradleProperty("gpr.user").orElse(providers.environmentVariable("GITHUB_ACTOR")).orNull
-                password = providers.gradleProperty("gpr.token").orElse(providers.environmentVariable("GITHUB_TOKEN")).orNull
-            }
-        }
-    }
-}
-```
-
-In `~/.gradle/gradle.properties` (never commit a token):
-
-```properties
-gpr.user=your-github-username
-gpr.token=ghp_xxx   # a Personal Access Token with read:packages
-```
-
-### Option B — JitPack
-
-`settings.gradle`:
+Published via **JitPack** (tokenless). Add the JitPack repository in `settings.gradle`:
 
 ```groovy
 dependencyResolutionManagement {
@@ -97,13 +59,30 @@ dependencyResolutionManagement {
 }
 ```
 
-### Dependency
+Then add the dependency **and libsu** (see the note below on why libsu is separate):
 
 ```groovy
 dependencies {
-    implementation 'com.github.fulvius31:iwScan-NDK:1.0.1'
+    implementation 'com.github.fulvius31:iwScan-NDK:1.0.2'
+    // Required at runtime — iwScan-NDK declares libsu compileOnly to avoid JitPack metadata
+    // rewriting, so the host app must add it. Resolves from the JitPack repo declared above.
+    implementation 'com.github.topjohnwu.libsu:core:6.0.0'
 }
 ```
+
+> The host app must also keep
+> `android { packaging { jniLibs { useLegacyPackaging = true } } }` so the bundled `libiwscan.so`
+> is extracted to `nativeLibDir` (the only place it can be executed on Android 10+).
+
+### Why you add libsu yourself
+
+iwScan‑NDK uses [libsu](https://github.com/topjohnwu/libsu) for its root shell, but declares it
+`compileOnly`. libsu is published only on JitPack under a `com.github.*` coordinate, and JitPack's
+group‑rewrite mangles such *transitive* coordinates in a dependent's published metadata (it rewrites
+`com.github.topjohnwu.libsu:core` to `com.github.fulvius31:core`, which 404s). Keeping libsu
+`compileOnly` removes it from iwScan‑NDK's published POM/module so nothing is mangled — at the cost
+of the host app adding the one libsu line above. (Most apps that need a Wi‑Fi/WPS root scanner
+already depend on libsu anyway.)
 
 ## A note on the libsu dependency
 
@@ -118,11 +97,16 @@ To bump libsu, drop the new `core-X.Y.Z.aar` + a matching POM under
 
 ## Releasing
 
-Tag a version and push it — CI publishes it to GitHub Packages:
+Tag a version and push it. JitPack builds the tag **lazily** — on the first time a consumer (or
+you) requests that coordinate — so there's no publish step to run:
 
 ```bash
-git tag 1.0.1 && git push origin 1.0.1
+git tag 1.0.2 && git push origin 1.0.2
 ```
+
+The `vendor/` setup also makes the JitPack build self-contained: JitPack resolves libsu from the
+checked-in repo, so the server-side build needs no JitPack-to-JitPack access. CI
+(`.github/workflows/ci.yml`) builds and runs the parser tests on every push to `main`.
 
 ## Usage
 

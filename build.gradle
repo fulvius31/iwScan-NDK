@@ -37,8 +37,14 @@ android {
 }
 
 dependencies {
-    // Root shell used to run the native scanner.
-    implementation 'com.github.topjohnwu.libsu:core:6.0.0'
+    // Root shell used to run the native scanner. Declared compileOnly on purpose:
+    // libsu is published only on JitPack as a `com.github.*` artifact, and JitPack's group-rewrite
+    // mangles such transitive coordinates in OUR published metadata (rewriting
+    // com.github.topjohnwu.libsu:core -> com.github.<this-repo>:core, which 404s). Keeping it
+    // compileOnly removes libsu from the published POM/module entirely, so nothing is mangled.
+    // The consuming app must add libsu itself (see README / consumer-rules.pro). The AAR is
+    // resolved here for our own compilation from the checked-in ./vendor repo (see settings.gradle).
+    compileOnly 'com.github.topjohnwu.libsu:core:6.0.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
 
     testImplementation 'junit:junit:4.13.2'
@@ -59,7 +65,8 @@ def libraryVersion = {
 }()
 
 // Maven coordinates: com.github.fulvius31:iwScan-NDK:<tag>
-// Published to GitHub Packages by CI (.github/workflows/publish.yml); also JitPack-compatible.
+// Distributed via JitPack, which builds the tag lazily by running `publishToMavenLocal`
+// (see jitpack.yml) — so this publication just needs to exist; no remote repo is configured.
 afterEvaluate {
     publishing {
         publications {
@@ -68,16 +75,6 @@ afterEvaluate {
                 groupId = 'com.github.fulvius31'
                 artifactId = 'iwScan-NDK'
                 version = libraryVersion
-            }
-        }
-        repositories {
-            maven {
-                name = 'GitHubPackages'
-                url = uri('https://maven.pkg.github.com/fulvius31/iwScan-NDK')
-                credentials {
-                    username = System.getenv('GITHUB_ACTOR') ?: (project.findProperty('gpr.user') ?: '')
-                    password = System.getenv('GITHUB_TOKEN') ?: (project.findProperty('gpr.token') ?: '')
-                }
             }
         }
     }
