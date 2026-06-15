@@ -45,7 +45,45 @@ directory.
 - A device whose driver allows bringing `wlan0` up while the framework Wi‑Fi is off (most do; see
   *Limitations*).
 
-## Installation (JitPack)
+## Installation
+
+The library is published two ways. Either coordinate is `com.github.fulvius31:iwScan-NDK:1.0.0`.
+
+> Whichever you use, the host app must keep
+> `android { packaging { jniLibs { useLegacyPackaging = true } } }` so the bundled `libiwscan.so`
+> is extracted to `nativeLibDir` (the only place it can be executed on Android 10+).
+
+### Option A — GitHub Packages (published by CI, recommended)
+
+CI (`.github/workflows/publish.yml`) builds and publishes to GitHub Packages on every `X.Y.Z` tag.
+GitHub Packages requires authentication even for reads, so add a token.
+
+`settings.gradle`:
+
+```groovy
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url = uri("https://maven.pkg.github.com/fulvius31/iwScan-NDK")
+            credentials {
+                username = providers.gradleProperty("gpr.user").orElse(providers.environmentVariable("GITHUB_ACTOR")).orNull
+                password = providers.gradleProperty("gpr.token").orElse(providers.environmentVariable("GITHUB_TOKEN")).orNull
+            }
+        }
+    }
+}
+```
+
+In `~/.gradle/gradle.properties` (never commit a token):
+
+```properties
+gpr.user=your-github-username
+gpr.token=ghp_xxx   # a Personal Access Token with read:packages
+```
+
+### Option B — JitPack
 
 `settings.gradle`:
 
@@ -59,7 +97,7 @@ dependencyResolutionManagement {
 }
 ```
 
-`app/build.gradle`:
+### Dependency
 
 ```groovy
 dependencies {
@@ -67,8 +105,13 @@ dependencies {
 }
 ```
 
-> The host app must keep `android { packaging { jniLibs { useLegacyPackaging = true } } }` so the
-> bundled `libiwscan.so` is extracted to `nativeLibDir` (where it can be executed).
+## Releasing
+
+Tag a version and push it — CI publishes it to GitHub Packages:
+
+```bash
+git tag 1.0.0 && git push origin 1.0.0
+```
 
 ## Usage
 

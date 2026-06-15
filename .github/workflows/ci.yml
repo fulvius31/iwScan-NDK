@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # tags needed so the version derives from git describe
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK & CMake
+        run: yes | sdkmanager "ndk;25.0.8775105" "cmake;3.22.1" > /dev/null
+
+      - name: Build & test
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease testDebugUnitTest --stacktrace

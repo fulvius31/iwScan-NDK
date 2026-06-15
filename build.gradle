@@ -58,7 +58,8 @@ def libraryVersion = {
     }
 }()
 
-// JitPack / Maven coordinates: com.github.fulvius31:iwScan-NDK:<tag>
+// Maven coordinates: com.github.fulvius31:iwScan-NDK:<tag>
+// Published to GitHub Packages by CI (.github/workflows/publish.yml); also JitPack-compatible.
 afterEvaluate {
     publishing {
         publications {
@@ -67,6 +68,16 @@ afterEvaluate {
                 groupId = 'com.github.fulvius31'
                 artifactId = 'iwScan-NDK'
                 version = libraryVersion
+            }
+        }
+        repositories {
+            maven {
+                name = 'GitHubPackages'
+                url = uri('https://maven.pkg.github.com/fulvius31/iwScan-NDK')
+                credentials {
+                    username = System.getenv('GITHUB_ACTOR') ?: (project.findProperty('gpr.user') ?: '')
+                    password = System.getenv('GITHUB_TOKEN') ?: (project.findProperty('gpr.token') ?: '')
+                }
             }
         }
     }
