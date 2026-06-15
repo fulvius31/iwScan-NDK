@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.github.topjohnwu.libsu</groupId>
+  <artifactId>core</artifactId>
+  <version>6.0.0</version>
+  <packaging>aar</packaging>
+  <!--
+    Vendored copy of libsu core 6.0.0 (https://github.com/topjohnwu/libsu), which is published
+    only on JitPack. JitPack returns HTTP 403 to shared GitHub Actions runner IPs, so the AAR is
+    checked in here and resolved from the local ./vendor Maven repository (see settings.gradle).
+    The original publishes Gradle module metadata; the marker comment is intentionally omitted so
+    Gradle resolves from this POM. libsu core 6.0.0 declares no transitive dependencies.
+    AAR sha256: a1ca5a8adb9ab11c42b71fc2d2a61b5a95cb4cdd06df0eb8c204c06813c2bb5b
+  -->
+</project>

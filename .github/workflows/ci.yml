@@ -29,6 +29,3 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease testDebugUnitTest --stacktrace
-        env:
-          # Authenticates JitPack so libsu (JitPack-only) resolves from CI runner IPs.
-          JITPACK_TOKEN: ${{ secrets.JITPACK_TOKEN }}
